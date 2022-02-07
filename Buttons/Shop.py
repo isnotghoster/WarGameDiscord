@@ -45,6 +45,10 @@ class ShopNationUI(discord.ui.View):
     async def swedan(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user == self.ctx.author: await self.units_table(button_label=button.label)
 
+    @discord.ui.button(label='Special', style=discord.ButtonStyle.blurple)
+    async def special(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user == self.ctx.author: await self.units_table(button_label=button.label)
+
 
 class ShopPaginationUI(discord.ui.View):
     def __init__(self, ctx, nation_tuple, nation_name):
@@ -64,7 +68,7 @@ class ShopPaginationUI(discord.ui.View):
         iterator = self.page_length * self.page
 
         while iterator < self.page_length * self.page + self.page_length and iterator < len(self.nation):
-            embed.add_field(name=self.nation[iterator][1], value='None', inline=False)
+            embed.add_field(name=self.nation[iterator][1], value=f'id:{self.nation[iterator][0]}', inline=False)
 
             iterator += 1
 
@@ -105,6 +109,7 @@ class ShopPaginationUI(discord.ui.View):
             embed.add_field(name="Britain", value="ПМВ - Современность", inline=True)
             embed.add_field(name="Italy", value="ПМВ - Современность", inline=True)
             embed.add_field(name="Sweden", value="ПМВ - Современность", inline=True)
+            embed.add_field(name='Special', value="Без времени", inline=True)
             embed.set_footer(text="Atomic-Kartonen Union")
 
             await self.edit_message.edit(embed=embed, view=embed_view)

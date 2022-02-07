@@ -12,8 +12,8 @@ class FirstStartUI(discord.ui.View):
     async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
         embed = discord.Embed(title='Аккаунт', description='Ваш аккаунт был добавлен.')
         embed.add_field(name="Войска", value="Вам был выдан стартовый набор", inline=False)
-        embed.add_field(name='Саперов ПВМ 0 ранга', value="160", inline=True)
-        embed.add_field(name='Кавалеристов ПВМ 0 ранга', value="40", inline=True)
+        embed.add_field(name='Саперов ПМВ 0 ранга', value="160", inline=True)
+        embed.add_field(name='Кавалеристов ПМВ 0 ранга', value="40", inline=True)
         embed.set_footer(text='Atomic-Kartonen Union')
         if interaction.user == self.ctx.author:
             if sqlreq.new_player(self.ctx.author):

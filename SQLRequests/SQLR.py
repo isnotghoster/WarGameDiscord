@@ -12,16 +12,31 @@ class Sqlrequests():
         self.db = sqlite3.connect('./SWGdb.sqlite')
         self.sql = self.db.cursor()
         self.sql.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER ,name TEXT, credit INTEGER)")
-        self.sql.execute("CREATE TABLE IF NOT EXISTS units (owner_id INTEGER, type TEXT, amount INTEGER, skill INTEGER,\
-        era INTEGER)")
+        self.sql.execute(
+            """CREATE TABLE IF NOT EXISTS units (
+            owner_id INTEGER, unit_id INTEGER, 
+            amount INTEGER, skill INTEGER,
+            era INTEGER)""")
+        self.sql.execute(
+            """CREATE TABLE IF NOT EXISTS stats (
+            id INTEGER, nation TEXT,
+            type TEXT, hp REAL,
+            infantry_damage REAL, armveh_damage REAL,
+            aircrafts_damage REAL, count_carry INTEGER,
+            supplie REAL, artillery INTEGER,
+            carry NUMERIC, cost INTEGER)""")
 
         self.db.commit()
+
+    def balance(self, user_id: int = None):
+        if user_id is not None:
+            return self.sql.execute("SELECT credit FROM users WHERE id = ?", (user_id,)).fetchone()[0]
 
     def new_player(self, user):
         if self.sql.execute("SELECT name FROM users WHERE id = ? ", (user.id,)).fetchone() is None:
             self.sql.execute("INSERT INTO users VALUES (?,?,?)", (user.id, user.name, 1000))
-            self.sql.execute("INSERT INTO units VALUES (?,?,?,?,?)", (user.id, 'sapper', 160, '0', '0'))
-            self.sql.execute("INSERT INTO units VALUES (?,?,?,?,?)", (user.id, 'cavalryman', 40, '0', '0'))
+            self.sql.execute("INSERT INTO units VALUES (?,?,?,?,?)", (user.id, 4, 160, 0, 0))
+            self.sql.execute("INSERT INTO units VALUES (?,?,?,?,?)", (user.id, 5, 40, 0, 0))
             self.db.commit()
 
             return True
@@ -30,7 +45,7 @@ class Sqlrequests():
 
     def unit_list(self, user: str = None, nation: str = None, unit_id: int = None):
         if user is not None:
-            return self.sql.execute("SELECT subtype, amount, skill, era FROM units WHERE owner_id = ?", (user.id,)). \
+            return self.sql.execute("SELECT unit_id, amount, skill, era FROM units WHERE owner_id = ?", (user.id,)). \
                 fetchall()
 
         elif nation is not None:
@@ -40,11 +55,33 @@ class Sqlrequests():
         elif self.sql.execute('SELECT id FROM stats WHERE  id = ?', (unit_id,)).fetchall():
             return True
 
-    def hiring(self, unit_id: int = None, user_id: int = None):
-        users_credits = self.sql.execute("SELECT credit FROM users WHERE id = ?", (user_id,)).fetchone()[0]
-        units_cost = self.sql.execute("SELECT credit FROM users WHERE id = ?", (user_id,)).fetchone()[0]
-        if self.sql.execute("SELECT credit FROM users WHERE id = ?", (user_id,)).fetchone()[0]:
-            pass
+    def unit_name(self, unit_id: int = None):
+        return self.sql.execute("SELECT type FROM stats WHERE id = ?", (unit_id,)).fetchone()[0]
+
+    def hiring(self, unit_id: int = None, user: object = None, count: int = 1):
+        users_credits = self.sql.execute("SELECT credit FROM users WHERE id = ?", (user.id,)).fetchone()[0]
+        units = self.sql.execute("SELECT cost, type FROM stats WHERE id = ?", (unit_id,)).fetchone()
+        if users_credits > units[0]:
+            self.sql.execute("UPDATE users SET credit = credit - ? WHERE id = ?", (units[0], user.id,))
+            if self.sql.execute("SELECT amount FROM units WHERE unit_id = ?", (unit_id,)).fetchone():
+                self.sql.execute("UPDATE units SET amount = amount + ? WHERE owner_id = ? AND unit_id = ?",\
+                                 (12, user.id, unit_id))
+            else:
+                self.sql.execute("INSERT INTO units VALUES (?,?,?,?,?)", (user.id, unit_id, 12, 0, 0))
+            self.db.commit()
+            return units[1]
+        else:
+
+            raise NotEnoughMoney(user.name)
 
 
 sqlreq = Sqlrequests()
+
+
+class NotEnoughMoney(BaseException):
+    def __init__(self, user="User"):
+        self.usr = user
+        super().__init__(self.usr)
+
+    def __str__(self):
+        return f'{self.usr} not enough money for hiring new units'

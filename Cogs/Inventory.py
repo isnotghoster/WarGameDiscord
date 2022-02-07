@@ -18,7 +18,8 @@ class Inventory(commands.Cog):
         embed = discord.Embed(title='Ваш инвентарь:', color=discord.Color.dark_gold())
 
         for unit in sqlreq.unit_list(ctx.message.author):
-            embed.add_field(name=unit[0],value=f'Количество юнитов: {unit[1]} \nУмение: {unit[2]} \nЭпоха: {unit[3]}')
+            embed.add_field(name=sqlreq.unit_name(unit_id=unit[0]), value=f'Количество юнитов: {unit[1]} \
+            \nУмение: {unit[2]} \nЭпоха: {unit[3]}')
         embed.set_footer(text="Atomic-Kartonen Union")
 
         await ctx.send(embed=embed)

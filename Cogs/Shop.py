@@ -1,6 +1,7 @@
 import discord
 from Buttons import ShopNationUI
 from SQLRequests import sqlreq
+from SQLRequests import NotEnoughMoney
 from discord.ext import commands
 
 
@@ -35,13 +36,27 @@ class Shop(commands.Cog):
     @commands.command()
     async def buy(self, ctx: commands.Context, unit_id: int = None):
         if sqlreq.unit_list(unit_id=unit_id) is not None:
-            pass
+            try:
+                unit = sqlreq.hiring(unit_id=unit_id, user=ctx.message.author)
+                await ctx.send(embed=discord.Embed(title=f'New unit \"{unit}\" hired'))
+
+            except NotEnoughMoney as exc:
+                await ctx.send(embed=discord.Embed(title=exc))
+
         else:
             await ctx.send(embed=discord.Embed(title='Err'))
 
     @commands.command()
-    async def check(self, ctx: commands.Context, id: int = None):
-        print(sqlreq.unit_list(unit_id=id))
+    @commands.has_permissions(administrator=True)
+    async def award(self, ctx: commands.Context, member: discord.Member = None, amount: int = None):
+        pass
+
+    @commands.command(aliases=['bank', "credits"])
+    async def credit(self, ctx: commands.Context):
+        await ctx.reply(embed=discord.Embed(
+            title="СпёрБанк",
+            colour=0xffa500,
+            description=f"""Ваш баланс состовляет: {sqlreq.balance(ctx.message.author.id)}"""))
 
 
 def setup(client):
