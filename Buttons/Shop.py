@@ -1,6 +1,5 @@
 import discord.ui
 import discord
-import math
 from SQLRequests.SQLR import sqlreq
 
 
