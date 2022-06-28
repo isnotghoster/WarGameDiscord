@@ -17,6 +17,11 @@ class ShopNationUI(discord.ui.View):
         embed = embed_view.get_page_embed(button_label)
         embed_view.edit_message = await self.nation_shop.edit(embed=embed, view=embed_view)
 
+    # Example:
+    # @discord.ui.button(label='Imperium', style=discord.ButtonStyle.blurple)
+    # async def imperium(self, button: discord.ui.Button, interaction: discord.Interaction):
+    #     if interaction.user == self.ctx.author: await self.units_table(button_label=button.label)
+
     @discord.ui.button(label="USA", style=discord.ButtonStyle.blurple)
     async def usa(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user == self.ctx.author: await self.units_table(button_label=button.label)
@@ -49,6 +54,10 @@ class ShopNationUI(discord.ui.View):
     async def special(self, button: discord.ui.Button, interaction: discord.Interaction):
         if interaction.user == self.ctx.author: await self.units_table(button_label=button.label)
 
+    @discord.ui.button(label='Savages', style=discord.ButtonStyle.blurple)
+    async def savages(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if interaction.user == self.ctx.author: await self.units_table(button_label=button.label)
+
 
 class ShopPaginationUI(discord.ui.View):
     def __init__(self, ctx, nation_tuple, nation_name):
@@ -62,7 +71,7 @@ class ShopPaginationUI(discord.ui.View):
 
     def get_page_embed(self, nation):
         embed = discord.Embed(title=f'Units of {nation}.',
-                              description=f'Страница: {self.page+1}/{self.get_max_page()}',
+                              description=f'Страница: {self.page + 1}/{self.get_max_page()}',
                               color=discord.Color.teal())
 
         iterator = self.page_length * self.page
